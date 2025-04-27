@@ -1,9 +1,8 @@
 
 `timescale 1ns / 1ps
 
-
 module InstMem (input [5:0] offset, output [31:0] data_out);
-    
+
    //Instruction Memory
    reg [31:0] mem [0:63];
    assign data_out = mem[offset];
@@ -58,7 +57,7 @@ module InstMem (input [5:0] offset, output [31:0] data_out);
 //    mem[47]=32'b0000000_00000_00000_000_00000_0110011 ; //add x0, x0, x0 
 //    mem[48]=32'b0000000_00000_00000_000_00000_0110011 ; //add x0, x0, x0 
 //    mem[49]=32'b00000000000100000000010010110011 ; //add x9, x0, x1end
-   
+
 
     mem[0]=32'b0000000_00000_00000_000_00000_0110011 ; //add x0, x0,
     mem[1]=32'b00000000000000000010000010000011 ; //lw x1, 0(x0) x1= 17

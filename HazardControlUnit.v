@@ -6,7 +6,7 @@ module HazardControlUnit(
     input ID_EX_MemRead, //Ctrl[6]
     output reg stall
 );
- 
+
 always @(*) begin
     stall = 1'd0;  
 
@@ -14,5 +14,6 @@ always @(*) begin
         stall = 1'd1;  
     end
 end
- 
+
 endmodule
+
