@@ -8,7 +8,8 @@ module ControlUnit ( //Inst was originally from 4:0
     output reg [1:0] ALUOp,   
     output reg MemWrite,      
     output reg ALUSrc,        
-    output reg RegWrite       
+    output reg RegWrite,    
+    output reg PCSrc
 );
 
 always @(*) begin
@@ -20,7 +21,7 @@ always @(*) begin
     MemWrite = 0;
     ALUSrc = 0;
     RegWrite = 0;
-
+    PCSrc = 0;
     case (Inst)
         5'b01100: begin  //originally 5'b01100
             Branch = 0;
@@ -30,6 +31,7 @@ always @(*) begin
             MemWrite = 0;
             ALUSrc = 0;
             RegWrite = 1;    
+            PCSrc = 0;  
         end
 
         5'b00000: begin  //originally 5'b00000
@@ -39,7 +41,8 @@ always @(*) begin
             ALUOp = 2'b00;   
             MemWrite = 0;
             ALUSrc = 1;     
-            RegWrite = 1;    
+            RegWrite = 1;  
+            PCSrc = 0;    
         end
 
         5'b01000: begin  //originally 5'b01000
@@ -49,7 +52,8 @@ always @(*) begin
             ALUOp = 2'b00;  
             MemWrite = 1;    
             ALUSrc = 1;     
-            RegWrite = 0;    
+            RegWrite = 0; 
+            PCSrc = 0;   
         end
 
         5'b11000: begin  //originally 11000
@@ -60,6 +64,7 @@ always @(*) begin
             MemWrite = 0;
             ALUSrc = 0;      
             RegWrite = 0;   
+             PCSrc = 1;
         end
 
         default: begin
@@ -71,6 +76,7 @@ always @(*) begin
             MemWrite = 0;
             ALUSrc = 0;
             RegWrite = 0;
+            PCSrc = 0;
         end
     endcase
 end

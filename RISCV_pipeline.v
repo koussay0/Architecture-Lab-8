@@ -49,6 +49,7 @@ module RISCV_pipeline (
     wire [1:0] forwardB;
     wire  PCWrite, IF_ID_Write, MuxControl;
     wire stall;
+    wire PCSrc;
     // Register for PC with initialization on reset
     reg [31:0] PC_in; // Register for PC input logic
 
@@ -75,7 +76,45 @@ module RISCV_pipeline (
         .data_out(instruction)
     );
 
-    // Pipeline Register IF/ID
+    wire [31:0] nop = 32'b0000000_00000_00000_000_00000_0110011; //nop instruction  
+     always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            IF_ID_out <= 32'b0;  
+        end else begin
+            if (PCSrc == 1) begin
+                IF_ID_out <= nop;
+            end else begin
+                IF_ID_out <= instruction;  
+            end
+        end
+    end
+
+    // ID/EX register logic (instruction decode stage)
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            ID_EX_out <= 32'b0;  
+        end else begin
+            if (PCSrc == 1 || stall == 1) begin
+                ID_EX_out <= 32'b0;  
+            end else begin
+                ID_EX_out <= IF_ID_out;
+            end
+        end
+    end
+
+   
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            EX_MEM_out <= 32'b0;  
+        end else begin
+            if (PCSrc == 1) begin
+                EX_MEM_out <= 32'b0; 
+            end else begin
+                EX_MEM_out <= ID_EX_out;  
+            end
+        end
+    end
+   
     NbitRegister #(64) IF_ID (
         .D({PC_out, instruction}),
         .rst(reset),
@@ -93,7 +132,8 @@ module RISCV_pipeline (
        ALUOp,    
        MemWrite,  
        ALUSrc,  
-       RegWrite
+       RegWrite,
+       PCSrc
     );
     /*(MuxControl==1)?5'b00000:*/
     HazardControlUnit HazardUnit( IF_ID_Inst[19:15], IF_ID_Inst[24:20], ID_EX_Rd,ID_EX_Ctrl[6], stall);
@@ -119,18 +159,10 @@ module RISCV_pipeline (
         WriteData,
         data_in1,
         data_in2); 
-//Branch && !MuxControl, MemRead&& !MuxControl, MemtoReg&& !MuxControl, c&& !MuxControl, MemWrite&& !MuxControl, ALUSrc&& !MuxControl, RegWrite&& !module ALUControlUnit
-    assign Branch = (!MuxControl)?1:0;
-     assign MemRead = (!MuxControl)?1:0;
-      assign MemtoReg = (!MuxControl)?1:0;
-       assign ALUOp = (!MuxControl)?1:0;
-       assign MemWrite = (!MuxControl)?1:0;
-       assign ALUSrc = (!MuxControl)?1:0;
-       assign RegWrite = (!MuxControl)?1:0;
-   
+
     // Pipeline Register ID/EX
     NbitRegister #(200) ID_EX (
-        .D({IF_ID_PC, data_in1, data_in2, imm_out, IF_ID_Inst[30], IF_ID_Inst[14:12], IF_ID_Inst[19:15], IF_ID_Inst[24:20], IF_ID_Inst[11:7], Branch , MemRead, MemtoReg, ALUOp, MemWrite, ALUSrc, RegWrite}),
+        .D({IF_ID_PC, data_in1, data_in2, imm_out, IF_ID_Inst[30], IF_ID_Inst[14:12], IF_ID_Inst[19:15], IF_ID_Inst[24:20], IF_ID_Inst[11:7], Branch && !MuxControl, MemRead && !MuxControl, MemtoReg&& !MuxControl, ALUOp&& !MuxControl, MemWrite&& !MuxControl, ALUSrc&& !MuxControl, RegWrite&& !MuxControl}),
         .rst(reset),
         .load(1'b1),
         .clk(clk),
