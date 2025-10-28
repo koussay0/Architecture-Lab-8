@@ -24,22 +24,38 @@ The design includes the implementation of each stage as modular Verilog componen
 
 Each module plays a specific role in the processor datapath:
 
-Module	Function
+- Module	Function:
+- 
 Instruction_Memory.v	Stores and provides instructions for the IF stage.
+
 ControlUnit.v	Generates control signals based on the instruction opcode.
+
 Imm_Generator.v	Extracts and sign-extends immediate values from instructions.
+
 Register_file.v	Contains general-purpose registers; supports read and write operations.
+
 ALU_Control.v	Determines the ALU operation based on control signals and instruction funct fields.
+
 ALU.v	Performs arithmetic and logical operations.
+
 Adder.v	Computes branch target addresses.
+
 Shift_Left.v	Shifts immediate values for branch address calculations.
+
 Data_Memory.v	Implements data memory for load/store instructions.
+
 Mux.v	Selects between multiple input signals in the datapath.
+
 NbitRegister.v	Defines pipeline registers between stages (IF/ID, ID/EX, EX/MEM, MEM/WB).
+
 ForwardingUnit.v	Resolves data hazards by forwarding data from later pipeline stages.
+
 HazardControlUnit.v	Detects and handles stalls or flushes due to hazards.
+
 RISCV_pipeline.v	Top-level integration of all components to form the full pipelined processor.
+
 Processor_TB.v	Testbench for simulating and verifying the processor functionality.
+
 # 4. Design Overview
 
 The RISC-V pipeline was designed to handle basic arithmetic, logical, load/store, and branch instructions. The datapath was structured to mirror real processor architecture, with pipeline registers separating each stage.
